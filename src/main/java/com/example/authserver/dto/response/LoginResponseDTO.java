@@ -1,4 +1,4 @@
-package com.example.authserver.dto.request;
+package com.example.authserver.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,9 +7,8 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class LoginRequestDTO {
-    private String email;
-    private String password;
+@NoArgsConstructor
+public class LoginResponseDTO {
+    private String accessToken;
 }
