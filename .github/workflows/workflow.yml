@@ -1,8 +1,9 @@
-name: workflow.yml
+name: Build and Push Docker Image
 
 on:
   push:
     branches:
+      - main
       - deploy
   pull_request:
     branches:
@@ -22,6 +23,9 @@ jobs:
           java-version: 17
           distribution: 'temurin'
 
+      - name: Grant execute permissions to Gradle wrapper
+        run: chmod +x ./gradlew  # 실행 권한 추가!
+
       - name: Build with Gradle
         run: ./gradlew clean build
 
@@ -37,4 +41,3 @@ jobs:
           context: .
           push: ${{ github.ref_name == 'deploy' }}
           tags: hwangrock/blaybus:latest, hwangrock/blaybus:${{ github.sha }}
-          build-args: JAR_FILE=build/libs/authserver-0.0.1-SNAPSHOT.jar
