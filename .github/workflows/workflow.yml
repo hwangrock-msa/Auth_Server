@@ -24,7 +24,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Grant execute permissions to Gradle wrapper
-        run: chmod +x ./gradlew  # 실행 권한 추가!
+        run: chmod +x ./gradlew 
 
       - name: Build with Gradle
         run: ./gradlew clean build
@@ -40,4 +40,4 @@ jobs:
         with:
           context: .
           push: ${{ github.ref_name == 'deploy' }}
-          tags: hwangrock/blaybus:latest, hwangrock/blaybus:${{ github.sha }}
+          tags: hwangrock/msa-auth:latest, hwangrock/msa-auth:${{ github.sha }}
