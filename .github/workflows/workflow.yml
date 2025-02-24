@@ -1,4 +1,4 @@
-name: Build and Push Docker Image
+name: workflow.yml
 
 on:
   push:
@@ -9,60 +9,21 @@ on:
       - main
 
 jobs:
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Java JDK 17
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
           java-version: 17
           distribution: 'temurin'
-          cache: 'gradle'
-
-      - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew
-        shell: bash
 
       - name: Build with Gradle
         run: ./gradlew clean build
-        shell: bash
-
-      - name: Verify built JAR file
-        run: ls -l build/libs  # JAR 파일 존재 여부 확인
-
-      - name: Upload JAR artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: built-jar
-          path: build/libs/*.jar
-
-  deploy:
-    if: github.ref == 'refs/heads/deploy'
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Download built JAR
-        uses: actions/download-artifact@v3
-        with:
-          name: built-jar
-          path: build/libs
-
-      - name: Verify JAR file after download
-        run: ls -l build/libs  # 다시 확인
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
@@ -74,9 +35,6 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          push: true
-          tags: hwangrock/msa-auth:latest, hwangrock/msa-auth:${{ github.sha }}
-          build-args:
-            JAR_FILE=build/libs/*.jar
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          push: ${{ github.ref_name == 'deploy' }}
+          tags: hwangrock/blaybus:latest, hwangrock/blaybus:${{ github.sha }}
+          build-args: JAR_FILE=build/libs/authserver-0.0.1-SNAPSHOT.jar
