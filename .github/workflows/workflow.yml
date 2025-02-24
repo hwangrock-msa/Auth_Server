@@ -1,4 +1,4 @@
-name: workflow.yml
+name: Build and Push Docker Image
 
 on:
   push:
@@ -28,8 +28,17 @@ jobs:
         shell: bash
 
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew clean build
         shell: bash
+
+      - name: Verify built JAR file
+        run: ls -l build/libs  # JAR 파일 존재 여부 확인
+
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: built-jar
+          path: build/libs/*.jar
 
   deploy:
     if: github.ref == 'refs/heads/deploy'
@@ -39,6 +48,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Download built JAR
+        uses: actions/download-artifact@v3
+        with:
+          name: built-jar
+          path: build/libs
+
+      - name: Verify JAR file after download
+        run: ls -l build/libs  # 다시 확인
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -58,5 +76,7 @@ jobs:
           context: .
           push: true
           tags: hwangrock/msa-auth:latest, hwangrock/msa-auth:${{ github.sha }}
+          build-args:
+            JAR_FILE=build/libs/*.jar
           cache-from: type=gha
           cache-to: type=gha,mode=max
