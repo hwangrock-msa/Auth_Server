@@ -9,6 +9,9 @@ public class AuthService {
     public String tokenProvider(LoginRequestDTO dto){
         String token="";
 
+        Long userId=dto.getId();
+        String email=dto.getEmail();
+
         return token;
     }
 }
